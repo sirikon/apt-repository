@@ -1,0 +1,7 @@
+version: '2.1'
+
+services:
+  apt-repository:
+    image: sirikon/apt-repository
+    build:
+      context: .
