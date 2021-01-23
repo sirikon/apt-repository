@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-source "./src/utils.sh"
+env
 
-headers \
-    "Content-Disposition: attachment; filename=\"shell2http\"" \
-    "Content-Type: application/octet-stream"
+# source "./src/utils.sh"
 
-cat ./shell2http
+# headers \
+#     "Content-Disposition: attachment; filename=\"shell2http\"" \
+#     "Content-Type: application/octet-stream"
+
+# cat ./shell2http

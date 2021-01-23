@@ -7,4 +7,5 @@ mkdir -p /data/packages
     -port 80 \
     -no-index \
     -cgi \
-    "/" "./src/endpoints/index.sh"
+    "/" "./src/endpoints/index.sh" \
+    "/packages/" "./src/endpoints/download-package.sh"
