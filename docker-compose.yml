@@ -5,7 +5,9 @@ services:
     image: sirikon/apt-repository
     build:
       context: .
+    stop_grace_period: 1s
     ports:
       - 127.0.0.1:8000:80
     volumes:
+      - ./data:/data
       - ./src:/app/src
