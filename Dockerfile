@@ -1,8 +1,4 @@
-FROM ubuntu:20.04 AS download-shell2http
-WORKDIR /app
-RUN apt-get update && apt-get install -y curl tar gzip && \
-    curl -Lso ./shell2http.tar.gz https://github.com/msoap/shell2http/releases/download/1.13/shell2http-1.13.linux.amd64.tar.gz && \
-    tar -xvzf shell2http.tar.gz
+FROM msoap/shell2http AS download-shell2http
 
 FROM ubuntu:20.04 AS final
 WORKDIR /app

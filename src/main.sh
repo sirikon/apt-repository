@@ -5,4 +5,5 @@ set -euo pipefail
     -host 0.0.0.0 \
     -port 80 \
     -no-index \
+    -cgi \
     "/" "./src/endpoints/index.sh"
