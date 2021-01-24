@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-env
+source "./src/utils.sh"
 
-# source "./src/utils.sh"
+if [ "${REQUEST_URI}" = '/packages/' ]; then
+    headers "Location: /"
+    exit 0
+fi
 
-# headers \
-#     "Content-Disposition: attachment; filename=\"shell2http\"" \
-#     "Content-Type: application/octet-stream"
+requestedPackageName="$(basename ${REQUEST_URI})"
+matchingPackagePath="$(find-package "${requestedPackageName}")"
 
-# cat ./shell2http
+if [ "${matchingPackagePath}" = '' ]; then
+    headers \
+        "Content-Type: text/plain" \
+        "Status: 404"
+    echo "${requestedPackageName} not found"
+    exit 0
+fi
+
+headers \
+    "Content-Type: application/octet-stream"
+
+cat "${matchingPackagePath}"
