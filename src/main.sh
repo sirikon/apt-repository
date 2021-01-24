@@ -10,5 +10,4 @@ mkdir -p /data/packages
     "/packages/" "./src/endpoints/download-package.sh" \
     "/upload" "./src/endpoints/upload-package.sh" \
     "/Packages" "./src/endpoints/download-package-db.sh" \
-    "/Packages.gz" "./src/endpoints/download-package-db-gziped.sh" \
-    "/InRelease" "./src/endpoints/not-found.sh"
+    "/Packages.gz" "./src/endpoints/download-package-db-gziped.sh"
