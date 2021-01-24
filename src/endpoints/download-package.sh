@@ -15,11 +15,12 @@ if [ "${matchingPackagePath}" = '' ]; then
     headers \
         "Content-Type: text/plain" \
         "Status: 404"
-    echo "${requestedPackageName} not found"
+    l "${requestedPackageName} not found"
     exit 0
 fi
 
 headers \
+    "Status: 200" \
     "Content-Type: application/octet-stream"
 
 cat "${matchingPackagePath}"
