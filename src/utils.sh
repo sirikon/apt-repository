@@ -25,3 +25,9 @@ function find-package {
         fi
     done
 }
+
+function refresh-database {(
+    cd "/data"
+    apt-ftparchive packages packages > Packages
+    gzip -k -f Packages
+)}

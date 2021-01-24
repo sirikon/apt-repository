@@ -8,4 +8,6 @@ mkdir -p /data/packages
     -no-index -cgi -form \
     "/" "./src/endpoints/index.sh" \
     "/packages/" "./src/endpoints/download-package.sh" \
-    "/upload" "./src/endpoints/upload-package.sh"
+    "/upload" "./src/endpoints/upload-package.sh" \
+    "/Packages" "./src/endpoints/download-package-db.sh" \
+    "/Packages.gz" "./src/endpoints/download-package-db-gziped.sh"

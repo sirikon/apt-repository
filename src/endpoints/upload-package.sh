@@ -14,4 +14,6 @@ fi
 
 mv "${filepath_package}" "/data/packages/${v_packageName}"
 
+refresh-database
+
 headers "Status: 200"
