@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+function docker-publish {(
+  version="$(date +'%Y%m%d_%H%M%S')"
+  export VERSION_TAG="${version}"
+  docker-compose build
+  docker-compose push
+
+  printf "Published version: %s\n" "${version}"
+)}
+
+function help {(
+  echo "Available commands:"
+  for fn in $(compgen -A function); do echo "  ${fn}"; done
+)}
+
+[ -z "$1" ] && help && exit 0
+"$1" "${@:2}"
