@@ -4,6 +4,11 @@
     <title>APT Repository</title>
   </head>
   <body>
-    <h1>APT</h1>
+    <h1>APT Repository</h1>
+    <ul>
+      <% for(const package of packages) { %>
+        <li><a href="/packages/<%= package %>"><%= package %></a></li>
+      <% } %>
+    </ul>
   </body>
 </html>

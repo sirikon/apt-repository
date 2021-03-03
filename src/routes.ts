@@ -1,11 +1,41 @@
 import { ServerRequest } from "https://deno.land/std@0.88.0/http/server.ts";
-import { ensureDir, move } from "https://deno.land/std@0.89.0/fs/mod.ts";
+import { ensureDir, move, walk } from "https://deno.land/std@0.89.0/fs/mod.ts";
 import { replyBadRequest, replyOK, replyTemplate } from "./web/reply.ts";
 
 export default [
   {url: /^\/$/, handler: async (req: ServerRequest) => {
-    await replyTemplate(req, 'index.ejs', {})
+    const packages = [];
+    for await (const entry of walk('./data/packages', { includeDirs: false, maxDepth: 1 })) {
+      packages.push(entry.name);
+    }
+    await replyTemplate(req, 'index.ejs', { packages })
   }},
+
+  {url: /^\/packages/, handler: async (req: ServerRequest) => {
+    const packageName = req.url.substr('/packages'.length);
+    const packageFile = await Deno.open(`./data/packages/${packageName.replace(/[\/\\]/g, '')}`, { read: true });
+    await req.respond({ status: 200, headers: new Headers([
+      ['content-type', 'application/octet-stream']
+    ]), body: packageFile });
+    packageFile.close();
+  }},
+
+  {url: /^\/Packages$/, handler: async (req: ServerRequest) => {
+    const file = await Deno.open(`./data/Packages`, { read: true });
+    await req.respond({ status: 200, headers: new Headers([
+      ['content-type', 'text/plain']
+    ]), body: file });
+    file.close();
+  }},
+
+  {url: /^\/Packages.gz$/, handler: async (req: ServerRequest) => {
+    const file = await Deno.open(`./data/Packages.gz`, { read: true });
+    await req.respond({ status: 200, headers: new Headers([
+      ['content-type', 'application/octet-stream']
+    ]), body: file });
+    file.close();
+  }},
+
   {url: /^\/upload$/, handler: async (req: ServerRequest) => {
     await ensureDir('./data/temp/uploads');
     const tempFilePath = `./data/temp/uploads/package.deb`;
