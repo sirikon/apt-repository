@@ -18,6 +18,7 @@ for await (const req of s) {
       await req.respond({ status: 404 })
     }
   } catch (err) {
+    console.error(err);
     try { await req.respond({ status: 500 }) }
     catch (err) { /**/ }
   }
