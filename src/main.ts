@@ -5,15 +5,20 @@ const s = serve({ port: 8000 });
 console.log("Listening on http://localhost:8000/");
 
 for await (const req of s) {
-  let matched = false;
-  for (const route of routes) {
-    if (req.url.match(route.url)) {
-      route.handler(req);
-      matched = true;
-      break;
+  try {
+    let matched = false;
+    for (const route of routes) {
+      if (req.url.match(route.url)) {
+        await route.handler(req);
+        matched = true;
+        break;
+      }
     }
-  }
-  if (!matched) {
-    req.respond({ status: 404 })
+    if (!matched) {
+      await req.respond({ status: 404 })
+    }
+  } catch (err) {
+    try { await req.respond({ status: 500 }) }
+    catch (err) { /**/ }
   }
 }
