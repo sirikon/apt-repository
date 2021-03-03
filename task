@@ -3,6 +3,10 @@
 set -e
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
+function run {(
+  deno run --unstable --allow-net --allow-read=./src/templates ./src/main.ts
+)}
+
 function docker-publish {(
   version="$(date +'%Y%m%d_%H%M%S')"
   export VERSION_TAG="${version}"
