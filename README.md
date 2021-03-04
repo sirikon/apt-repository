@@ -1,3 +1,5 @@
 # APT Repository
 
-https://deno.land/x/multiparser@v2.0.3
+```bash
+curl --data-binary "@./out/srkbz-repo_0.1.0.deb" http://localhost:8000/upload
+```
