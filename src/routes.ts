@@ -1,11 +1,12 @@
 import { ServerRequest } from "https://deno.land/std@0.88.0/http/server.ts";
 import { ensureDir, move, walk } from "https://deno.land/std@0.89.0/fs/mod.ts";
 import { replyBadRequest, replyOK, replyTemplate } from "./web/reply.ts";
+import config from './config.ts';
 
 export default [
   {url: /^\/$/, handler: async (req: ServerRequest) => {
     const packages = [];
-    for await (const entry of walk('./data/packages', { includeDirs: false, maxDepth: 1 })) {
+    for await (const entry of walk(`${config.dataFolder}/packages`, { includeDirs: false, maxDepth: 1 })) {
       packages.push(entry.name);
     }
     await replyTemplate(req, 'index.ejs', { packages })
@@ -13,7 +14,7 @@ export default [
 
   {url: /^\/packages/, handler: async (req: ServerRequest) => {
     const packageName = req.url.substr('/packages'.length);
-    const packageFile = await Deno.open(`./data/packages/${packageName.replace(/[\/\\]/g, '')}`, { read: true });
+    const packageFile = await Deno.open(`${config.dataFolder}/packages/${packageName.replace(/[\/\\]/g, '')}`, { read: true });
     await req.respond({ status: 200, headers: new Headers([
       ['content-type', 'application/octet-stream']
     ]), body: packageFile });
@@ -21,7 +22,7 @@ export default [
   }},
 
   {url: /^\/Packages$/, handler: async (req: ServerRequest) => {
-    const file = await Deno.open(`./data/Packages`, { read: true });
+    const file = await Deno.open(`${config.dataFolder}/Packages`, { read: true });
     await req.respond({ status: 200, headers: new Headers([
       ['content-type', 'text/plain']
     ]), body: file });
@@ -29,7 +30,7 @@ export default [
   }},
 
   {url: /^\/Packages.gz$/, handler: async (req: ServerRequest) => {
-    const file = await Deno.open(`./data/Packages.gz`, { read: true });
+    const file = await Deno.open(`${config.dataFolder}/Packages.gz`, { read: true });
     await req.respond({ status: 200, headers: new Headers([
       ['content-type', 'application/octet-stream']
     ]), body: file });
@@ -37,8 +38,8 @@ export default [
   }},
 
   {url: /^\/upload$/, handler: async (req: ServerRequest) => {
-    await ensureDir('./data/temp/uploads');
-    const tempFilePath = `./data/temp/uploads/package.deb`;
+    await ensureDir(`${config.dataFolder}/temp/uploads`);
+    const tempFilePath = `${config.dataFolder}/temp/uploads/package.deb`;
 
     const file = await Deno.open(tempFilePath, { create: true, write: true });
     await Deno.copy(req.body, file);
@@ -58,11 +59,11 @@ export default [
     if (!status.success) return await replyBadRequest(req);
 
     const debInfo = parseDebInfo(new TextDecoder().decode(stdout));
-    await ensureDir('./data/packages');
-    await move(tempFilePath, `./data/packages/${debInfo['Package']}_${debInfo['Version']}.deb`, { overwrite: true });
+    await ensureDir(`${config.dataFolder}/packages`);
+    await move(tempFilePath, `${config.dataFolder}/packages/${debInfo['Package']}_${debInfo['Version']}.deb`, { overwrite: true });
     await Deno.run({
       cmd: ["bash", "-c", "apt-ftparchive packages packages > Packages && gzip -k -f Packages"],
-      cwd: './data', stdin: "null", stderr: "null", stdout: "null",
+      cwd: config.dataFolder, stdin: "null", stderr: "null", stdout: "null",
     }).status();
 
     await replyOK(req);

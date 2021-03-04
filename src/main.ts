@@ -1,8 +1,9 @@
 import { serve } from "https://deno.land/std@0.88.0/http/server.ts";
 import routes from './routes.ts';
+import config from './config.ts';
 
-const s = serve({ port: 8000 });
-console.log("Listening on http://localhost:8000/");
+const s = serve({ hostname: '0.0.0.0', port: config.port });
+console.log(`Listening on http://localhost:${config.port}/`);
 
 for await (const req of s) {
   try {

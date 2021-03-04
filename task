@@ -3,10 +3,16 @@
 set -e
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-DENO_FLAGS="--unstable --allow-run --allow-net --allow-read=./src/templates,./data --allow-write=./data"
+DENO_FLAGS="--unstable --allow-env --allow-run --allow-net --allow-read --allow-write"
 
 function run {(
+  export PORT=8000
   deno run $DENO_FLAGS ./src/main.ts
+)}
+
+function build {(
+  mkdir -p ./out
+  deno compile $DENO_FLAGS --lite --output ./out/apt-repository ./src/main.ts
 )}
 
 function docker-publish {(
