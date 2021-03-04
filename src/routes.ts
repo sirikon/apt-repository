@@ -38,6 +38,8 @@ export default [
   }},
 
   {url: /^\/upload$/, handler: async (req: ServerRequest) => {
+    if (req.headers.get('secret') !== config.uploadSecret) return await replyBadRequest(req);
+
     await ensureDir(`${config.dataFolder}/temp/uploads`);
     const tempFilePath = `${config.dataFolder}/temp/uploads/package.deb`;
 

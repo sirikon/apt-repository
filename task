@@ -7,6 +7,7 @@ DENO_FLAGS="--unstable --allow-env --allow-run --allow-net --allow-read --allow-
 
 function run {(
   export PORT=8000
+  export UPLOAD_SECRET=secret
   deno run $DENO_FLAGS ./src/main.ts
 )}
 

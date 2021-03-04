@@ -2,13 +2,45 @@
   <head>
     <meta charset="utf8">
     <title>APT Repository</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        background-color: whitesmoke;
+      }
+
+      .container {
+        display: block;
+        max-width: 900px;
+        margin: auto;
+      }
+
+      .box {
+        background-color: white;
+        padding: 1px 1em;
+      }
+
+      .footer {
+        margin: 1em 0;
+        text-align: center;
+        font-size: .8em;
+      }
+    </style>
   </head>
   <body>
-    <h1>APT Repository</h1>
-    <ul>
-      <% for(const package of packages) { %>
-        <li><a href="/packages/<%= package %>"><%= package %></a></li>
-      <% } %>
-    </ul>
+
+    <div class="container">
+      <h1>apt.srk.bz</h1>
+      <div class="box">
+        <ul>
+          <% for(const package of packages) { %>
+            <li><a href="/packages/<%= package %>"><%= package %></a></li>
+          <% } %>
+        </ul>
+      </div>
+      <div class="footer">
+        <a href="https://github.com/sirikon/apt-repository">Source Code</a>
+      </div>
+    </div>
+
   </body>
 </html>
