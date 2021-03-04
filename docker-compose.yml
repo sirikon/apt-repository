@@ -7,7 +7,7 @@ services:
       context: .
     stop_grace_period: 1s
     environment:
-      APT_UPLOAD_SECRET: secret
+      UPLOAD_SECRET: secret
     ports:
       - 127.0.0.1:8000:80
     volumes:
