@@ -1,9 +1,5 @@
 # APT Repository
 
 ```bash
-curl \
-    -F secret=secret \
-    -F package=@mypackage.deb \
-    -F packageName=mypackage.deb \
-    http://127.0.0.1:8000/upload
+curl --data-binary "@./out/srkbz-repo_0.1.0.deb" http://localhost:8000/upload
 ```
