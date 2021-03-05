@@ -1,43 +1,32 @@
 import { ServerRequest } from "std/http/server.ts";
 import { ensureDir, move, walk } from "std/fs/mod.ts";
-import { replyBadRequest, replyOK, replyTemplate } from "@/web/reply.ts";
+import { replyBadRequest, replyFile, replyOK, replyTemplate } from "@/web/reply.ts";
 import config from '@/config.ts';
 
 export default [
-  {url: /^\/$/, handler: async (req: ServerRequest) => {
+  route(/^\/$/, async (req) => {
     const packages = [];
     for await (const entry of walk(`${config.dataFolder}/packages`, { includeDirs: false, maxDepth: 1 })) {
       packages.push(entry.name);
     }
     await replyTemplate(req, 'index.ejs', { packages })
-  }},
+  }),
 
-  {url: /^\/packages/, handler: async (req: ServerRequest) => {
-    const packageName = req.url.substr('/packages'.length);
-    const packageFile = await Deno.open(`${config.dataFolder}/packages/${packageName.replace(/[\/\\]/g, '')}`, { read: true });
-    await req.respond({ status: 200, headers: new Headers([
-      ['content-type', 'application/octet-stream']
-    ]), body: packageFile });
-    packageFile.close();
-  }},
+  route(/^\/packages/, async (req) => {
+    const packageName = req.url.substr('/packages'.length).replace(/[\/\\]/g, '');
+    const packagePath = `${config.dataFolder}/packages/${packageName}`;
+    await replyFile(req, packagePath);
+  }),
 
-  {url: /^\/Packages$/, handler: async (req: ServerRequest) => {
-    const file = await Deno.open(`${config.dataFolder}/Packages`, { read: true });
-    await req.respond({ status: 200, headers: new Headers([
-      ['content-type', 'text/plain']
-    ]), body: file });
-    file.close();
-  }},
+  route(/^\/Packages$/,async (req: ServerRequest) => {
+    await replyFile(req, `${config.dataFolder}/Packages`, 'text/plain');
+  }),
 
-  {url: /^\/Packages.gz$/, handler: async (req: ServerRequest) => {
-    const file = await Deno.open(`${config.dataFolder}/Packages.gz`, { read: true });
-    await req.respond({ status: 200, headers: new Headers([
-      ['content-type', 'application/octet-stream']
-    ]), body: file });
-    file.close();
-  }},
+  route(/^\/Packages.gz$/, async (req: ServerRequest) => {
+    await replyFile(req, `${config.dataFolder}/Packages.gz`, 'application/octet-stream');
+  }),
 
-  {url: /^\/upload$/, handler: async (req: ServerRequest) => {
+  route(/^\/upload$/, async (req: ServerRequest) => {
     if (req.headers.get('secret') !== config.uploadSecret) return await replyBadRequest(req);
 
     await ensureDir(`${config.dataFolder}/temp/uploads`);
@@ -69,8 +58,12 @@ export default [
     }).status();
 
     await replyOK(req);
-  }}
+  })
 ]
+
+function route(url: RegExp, handler: (req: ServerRequest) => Promise<void>) {
+  return { url, handler }
+}
 
 function parseDebInfo(data: string) {
   const info = data.split('\n')
