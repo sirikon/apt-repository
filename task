@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-DENO_FLAGS="--unstable --allow-env --allow-run --allow-net --allow-read --allow-write"
-
 function run {(
   export PORT="8000"
   export DATA_FOLDER="./data"
@@ -17,13 +15,8 @@ function build {(
     ./src/main.ts
 )}
 
-function lint {(
-  deno --unstable lint
-)}
-
-function compose {(
-  __docker-compose "${@}"
-)}
+function lint {( cd "src" && deno --unstable lint )}
+function compose {( __docker-compose "${@}" )}
 
 function docker-publish {(
   export VERSION_TAG="$(gen-version)"
