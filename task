@@ -16,12 +16,12 @@ function build {(
 )}
 
 function lint {( cd "src" && deno --unstable lint )}
-function compose {( __docker-compose "${@}" )}
+function compose {( cd "./docker" && docker-compose "${@}" )}
 
 function docker-publish {(
   export VERSION_TAG="$(gen-version)"
-  docker-compose build
-  docker-compose push
+  compose build
+  compose push
 
   printf "%s: %s\n" \
     "Published version" "${VERSION_TAG}"
@@ -37,7 +37,6 @@ function build-deno-flags {(
     --allow-read="${DATA_FOLDER},./src/templates" \
     --allow-write="${DATA_FOLDER}"
 )}
-function __docker-compose {( cd "./docker" && docker-compose "${@}" )}
 
 
 

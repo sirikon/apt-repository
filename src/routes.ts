@@ -1,7 +1,7 @@
 import { ServerRequest } from "std/http/server.ts";
 import { ensureDir, move, walk } from "std/fs/mod.ts";
-import { replyBadRequest, replyOK, replyTemplate } from "./web/reply.ts";
-import config from './config.ts';
+import { replyBadRequest, replyOK, replyTemplate } from "@/web/reply.ts";
+import config from '@/config.ts';
 
 export default [
   {url: /^\/$/, handler: async (req: ServerRequest) => {
