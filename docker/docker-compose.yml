@@ -4,12 +4,12 @@ services:
   apt-repository:
     image: sirikon/apt-repository:${VERSION_TAG:-dev}
     build:
-      context: .
+      context: ..
+      dockerfile: ./docker/Dockerfile
     stop_grace_period: 1s
     environment:
       UPLOAD_SECRET: secret
     ports:
       - 127.0.0.1:8000:80
     volumes:
-      - ./data:/data
-      - ./src:/app/src
+      - ../data:/data

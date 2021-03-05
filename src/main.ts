@@ -1,11 +1,14 @@
-import { serve } from "https://deno.land/std@0.88.0/http/server.ts";
-import routes from './routes.ts';
-import config from './config.ts';
+import { serve, ServerRequest } from "std/http/server.ts";
+import routes from '@/routes.ts';
+import config from '@/config.ts';
 
-const s = serve({ hostname: '0.0.0.0', port: config.port });
-console.log(`Listening on http://localhost:${config.port}/`);
+async function main() {
+  const s = serve({ hostname: '0.0.0.0', port: parseInt(config.port) });
+  console.log(`Listening on http://localhost:${config.port}/`);
+  for await (const req of s) { handleRequest(req) }
+}
 
-for await (const req of s) {
+async function handleRequest(req: ServerRequest) {
   try {
     let matched = false;
     for (const route of routes) {
@@ -24,3 +27,5 @@ for await (const req of s) {
     catch (err) { /**/ }
   }
 }
+
+await main();

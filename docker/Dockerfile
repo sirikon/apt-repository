@@ -1,14 +1,13 @@
 FROM ubuntu:20.04 AS build
-RUN apt-get update && apt-get install -y curl git unzip
+RUN apt-get update && apt-get install -y curl git unzip binutils
 RUN git clone https://github.com/asdf-vm/asdf.git /asdf --branch v0.8.0
 RUN bash -c "source /asdf/asdf.sh && asdf plugin-add deno https://github.com/asdf-community/asdf-deno.git"
-
 WORKDIR /app
 COPY .tool-versions .
 RUN bash -c "source /asdf/asdf.sh && asdf install"
 COPY ./task .
 COPY ./src ./src
-RUN bash -c "source /asdf/asdf.sh && ./task build"
+RUN bash -c "source /asdf/asdf.sh && DATA_FOLDER=/data ./task build"
 
 FROM ubuntu:20.04 AS final
 WORKDIR /app

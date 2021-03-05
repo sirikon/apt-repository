@@ -1,5 +1,5 @@
-import { ServerRequest } from "https://deno.land/std@0.88.0/http/server.ts";
-import { ensureDir, move, walk } from "https://deno.land/std@0.89.0/fs/mod.ts";
+import { ServerRequest } from "std/http/server.ts";
+import { ensureDir, move, walk } from "std/fs/mod.ts";
 import { replyBadRequest, replyOK, replyTemplate } from "./web/reply.ts";
 import config from './config.ts';
 

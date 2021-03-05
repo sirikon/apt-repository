@@ -1,34 +1,71 @@
 #!/usr/bin/env bash
 
-set -e
-cd "$(dirname "${BASH_SOURCE[0]}")"
-
 DENO_FLAGS="--unstable --allow-env --allow-run --allow-net --allow-read --allow-write"
 
 function run {(
-  export PORT=8000
-  export UPLOAD_SECRET=secret
-  deno run $DENO_FLAGS ./src/main.ts
+  export PORT="8000"
+  export DATA_FOLDER="./data"
+  export UPLOAD_SECRET="secret"
+  deno run $(build-deno-flags) ./src/main.ts
 )}
 
 function build {(
+  export DATA_FOLDER="${DATA_FOLDER:-"./data"}"
   mkdir -p ./out
-  deno compile $DENO_FLAGS --lite --output ./out/apt-repository ./src/main.ts
+  deno compile $(build-deno-flags) \
+    --lite --output ./out/apt-repository \
+    ./src/main.ts
+)}
+
+function lint {(
+  deno --unstable lint
+)}
+
+function compose {(
+  __docker-compose "${@}"
 )}
 
 function docker-publish {(
-  version="$(date +'%Y%m%d_%H%M%S')"
-  export VERSION_TAG="${version}"
+  export VERSION_TAG="$(gen-version)"
   docker-compose build
   docker-compose push
 
-  printf "Published version: %s\n" "${version}"
+  printf "%s: %s\n" \
+    "Published version" "${VERSION_TAG}"
 )}
 
-function help {(
-  echo "Available commands:"
-  for fn in $(compgen -A function); do echo "  ${fn}"; done
-)}
+commands=(run build lint compose docker-publish)
 
-[ -z "$1" ] && help && exit 0
-"$1" "${@:2}"
+function gen-version {( date +'%Y%m%d_%H%M%S' )}
+function build-deno-flags {(
+  printf "%s " \
+    --unstable --allow-env --allow-run --allow-net \
+    --import-map="./src/import_map.json" \
+    --allow-read="${DATA_FOLDER},./src/templates" \
+    --allow-write="${DATA_FOLDER}"
+)}
+function __docker-compose {( cd "./docker" && docker-compose "${@}" )}
+
+
+
+function help {
+    printf "%s\n" "Available commands:"
+    printf " %s\n" "${commands[@]}" help
+}
+
+function run-command {
+    command="$1"
+    args=("${@:2}")
+    for c in "${commands[@]}"; do
+        if [ "$c" = "$command" ]; then
+            ("$command" "${args[@]}")
+            return
+        fi
+    done
+    printf "%s\n" "Command '${command}' does not exist."
+}
+
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+[ -z "${1:-""}" ] || [ "${1:-""}" = "help" ] && help && exit 0
+run-command "${1}" "${@:2}"

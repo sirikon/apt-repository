@@ -1,20 +1,14 @@
 export default {
-  port: getPort(80),
-  dataFolder: getDataFolder('./data'),
-  uploadSecret: getUploadSecret()
+  port: getEnvVar('PORT', '80'),
+  dataFolder: getEnvVar('DATA_FOLDER'),
+  uploadSecret: getEnvVar('UPLOAD_SECRET')
 }
 
-function getPort(fallback: number) {
-  const envPort = Deno.env.get('PORT');
-  return envPort ? parseInt(envPort) : fallback;
-}
-
-function getDataFolder(fallback: string) {
-  return Deno.env.get('DATA_FOLDER') || fallback;
-}
-
-function getUploadSecret() {
-  const value = Deno.env.get('UPLOAD_SECRET');
-  if (!value) throw new Error('UPLOAD_SECRET env var is required');
+function getEnvVar(key: string, fallback?: string) {
+  const value = Deno.env.get(key);
+  if (value == null) {
+    if (fallback == null) throw new Error(`${key} env var is required`)
+    return fallback;
+  }
   return value;
 }

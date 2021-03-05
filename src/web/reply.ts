@@ -1,5 +1,5 @@
-import { ServerRequest } from "https://deno.land/std@0.88.0/http/server.ts";
-import * as dejs from "https://deno.land/x/dejs@0.9.3/mod.ts";
+import { ServerRequest } from "std/http/server.ts";
+import * as dejs from "dejs/mod.ts";
 
 export async function replyOK(req: ServerRequest) {
   await req.respond({ status: 200 });
@@ -15,6 +15,7 @@ export async function replyHTML(req: ServerRequest, content: string | Uint8Array
   ]), body: content })
 }
 
+// deno-lint-ignore no-explicit-any
 export async function replyTemplate(req: ServerRequest, templatePath: string, context: { [key: string]: any }) {
   const result = await dejs.renderFile(`./src/templates/${templatePath}`, context)
   await replyHTML(req, result);
