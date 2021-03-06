@@ -1,4 +1,5 @@
 import { ServerRequest, Response } from "std/http/server.ts";
+import { lookup } from "media_types/mod.ts";
 import * as dejs from "dejs/mod.ts";
 
 export async function replyOK(req: ServerRequest) {
@@ -7,6 +8,10 @@ export async function replyOK(req: ServerRequest) {
 
 export async function replyBadRequest(req: ServerRequest) {
   await respond(req, { status: 400 });
+}
+
+export async function replyNotFound(req: ServerRequest) {
+  await respond(req, { status: 404 });
 }
 
 export async function replyHTML(req: ServerRequest, content: string | Uint8Array | Deno.Reader) {
@@ -19,7 +24,7 @@ export async function replyFile(req: ServerRequest, filePath: string, contentTyp
   const file = await Deno.open(filePath, { read: true });
   const fileInfo = await Deno.lstat(filePath);
   await respond(req, { headers: new Headers([
-    ['content-type', contentType || 'application/octet-stream'],
+    ['content-type', contentType || lookup(filePath) || 'application/octet-stream'],
     ['content-length', fileInfo.size.toString()],
   ]), body: file });
   file.close();
@@ -27,7 +32,7 @@ export async function replyFile(req: ServerRequest, filePath: string, contentTyp
 
 // deno-lint-ignore no-explicit-any
 export async function replyTemplate(req: ServerRequest, templatePath: string, context: { [key: string]: any }) {
-  const result = await dejs.renderFile(`./src/templates/${templatePath}`, context)
+  const result = await dejs.renderFile(`./src/web/templates/${templatePath}`, context)
   await replyHTML(req, result);
 }
 

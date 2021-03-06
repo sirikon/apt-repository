@@ -1,8 +1,11 @@
 {
-    "deno.enable": true,
-    "deno.lint": true,
-    "deno.unstable": true,
-    "deno.importMap": "./src/import_map.json",
-    "editor.tabSize": 2,
-    "editor.detectIndentation": false
+  "deno.enable": true,
+  "deno.lint": true,
+  "deno.unstable": true,
+  "deno.importMap": "./src/import_map.json",
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "emmet.includeLanguages": {
+    "ejs": "html",
+  },
 }

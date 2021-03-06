@@ -28,7 +28,7 @@ function docker-publish {(
 )}
 
 function perf {(
-  hey -n 10000 "${1}"
+  hey -n 10000 -c 500 "${1}"
 )}
 function perf-local {(
   perf "http://localhost:8000"
@@ -48,7 +48,7 @@ function build-deno-flags {(
   printf "%s " \
     --unstable --allow-env --allow-run --allow-net \
     --import-map="./src/import_map.json" \
-    --allow-read="${DATA_FOLDER},./src/templates" \
+    --allow-read="${DATA_FOLDER},./src/web/templates,./src/web/assets" \
     --allow-write="${DATA_FOLDER}"
 )}
 
