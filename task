@@ -27,7 +27,21 @@ function docker-publish {(
     "Published version" "${VERSION_TAG}"
 )}
 
-commands=(run build lint compose docker-publish)
+function perf {(
+  hey -n 10000 "${1}"
+)}
+function perf-local {(
+  perf "http://localhost:8000"
+)}
+function perf-prod {(
+  perf "https://apt.srk.bz"
+)}
+
+commands=(
+  run build lint
+  compose docker-publish
+  perf perf-local perf-prod
+)
 
 function gen-version {( date +'%Y%m%d_%H%M%S' )}
 function build-deno-flags {(
