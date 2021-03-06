@@ -1,16 +1,16 @@
-import { ServerRequest } from "std/http/server.ts";
+import { ServerRequest, Response } from "std/http/server.ts";
 import * as dejs from "dejs/mod.ts";
 
 export async function replyOK(req: ServerRequest) {
-  await req.respond({ status: 200 });
+  await respond(req, { status: 200 });
 }
 
 export async function replyBadRequest(req: ServerRequest) {
-  await req.respond({ status: 400 });
+  await respond(req, { status: 400 });
 }
 
 export async function replyHTML(req: ServerRequest, content: string | Uint8Array | Deno.Reader) {
-  await req.respond({ headers: new Headers([
+  await respond(req, { headers: new Headers([
     ['content-type', 'text/html']
   ]), body: content })
 }
@@ -18,7 +18,7 @@ export async function replyHTML(req: ServerRequest, content: string | Uint8Array
 export async function replyFile(req: ServerRequest, filePath: string, contentType?: string) {
   const file = await Deno.open(filePath, { read: true });
   const fileInfo = await Deno.lstat(filePath);
-  await req.respond({ headers: new Headers([
+  await respond(req, { headers: new Headers([
     ['content-type', contentType || 'application/octet-stream'],
     ['content-length', fileInfo.size.toString()],
   ]), body: file });
@@ -29,4 +29,16 @@ export async function replyFile(req: ServerRequest, filePath: string, contentTyp
 export async function replyTemplate(req: ServerRequest, templatePath: string, context: { [key: string]: any }) {
   const result = await dejs.renderFile(`./src/templates/${templatePath}`, context)
   await replyHTML(req, result);
+}
+
+async function respond(req: ServerRequest, response: Response) {
+  await handleBrokenPipe(req.respond(response));
+}
+
+async function handleBrokenPipe(promise: Promise<void>) {
+  try {
+    await promise;
+  } catch (err) {
+    if (err.name !== 'BrokenPipe') throw err;
+  }
 }

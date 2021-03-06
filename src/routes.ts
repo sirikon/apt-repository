@@ -6,7 +6,7 @@ import config from '@/config.ts';
 export default [
   route(/^\/$/, async (req) => {
     const packages = [];
-    for await (const entry of walk(`${config.dataFolder}/packages`, { includeDirs: false, maxDepth: 1 })) {
+    for await (const entry of walk(data('packages'), { includeDirs: false, maxDepth: 1 })) {
       packages.push(entry.name);
     }
     await replyTemplate(req, 'index.ejs', { packages })
@@ -14,23 +14,21 @@ export default [
 
   route(/^\/packages/, async (req) => {
     const packageName = req.url.substr('/packages'.length).replace(/[\/\\]/g, '');
-    const packagePath = `${config.dataFolder}/packages/${packageName}`;
+    const packagePath = data(`packages/${packageName}`);
     await replyFile(req, packagePath);
   }),
 
-  route(/^\/Packages$/,async (req: ServerRequest) => {
-    await replyFile(req, `${config.dataFolder}/Packages`, 'text/plain');
-  }),
+  route(/^\/Packages$/, async (req: ServerRequest) =>
+    await replyFile(req, data('Packages'), 'text/plain')),
 
-  route(/^\/Packages.gz$/, async (req: ServerRequest) => {
-    await replyFile(req, `${config.dataFolder}/Packages.gz`, 'application/octet-stream');
-  }),
+  route(/^\/Packages.gz$/, async (req: ServerRequest) =>
+    await replyFile(req, data('/Packages.gz'), 'application/octet-stream')),
 
   route(/^\/upload$/, async (req: ServerRequest) => {
     if (req.headers.get('secret') !== config.uploadSecret) return await replyBadRequest(req);
 
-    await ensureDir(`${config.dataFolder}/temp/uploads`);
-    const tempFilePath = `${config.dataFolder}/temp/uploads/package.deb`;
+    await ensureDir(data('temp/uploads'));
+    const tempFilePath = data('temp/uploads/package.deb');
 
     const file = await Deno.open(tempFilePath, { create: true, write: true });
     await Deno.copy(req.body, file);
@@ -50,11 +48,11 @@ export default [
     if (!status.success) return await replyBadRequest(req);
 
     const debInfo = parseDebInfo(new TextDecoder().decode(stdout));
-    await ensureDir(`${config.dataFolder}/packages`);
-    await move(tempFilePath, `${config.dataFolder}/packages/${debInfo['Package']}_${debInfo['Version']}.deb`, { overwrite: true });
+    await ensureDir(data('packages'));
+    await move(tempFilePath, data(`packages/${debInfo['Package']}_${debInfo['Version']}.deb`), { overwrite: true });
     await Deno.run({
       cmd: ["bash", "-c", "apt-ftparchive packages packages > Packages && gzip -k -f Packages"],
-      cwd: config.dataFolder, stdin: "null", stderr: "null", stdout: "null",
+      cwd: data(''), stdin: "null", stderr: "null", stdout: "null",
     }).status();
 
     await replyOK(req);
@@ -63,6 +61,10 @@ export default [
 
 function route(url: RegExp, handler: (req: ServerRequest) => Promise<void>) {
   return { url, handler }
+}
+
+function data(path: string) {
+  return `${config.dataFolder}/${path}`
 }
 
 function parseDebInfo(data: string) {
