@@ -16,6 +16,9 @@ export async function getPackages(): Promise<string[]> {
   for await (const entry of walkPackages) {
     packages.push(entry.name);
   }
+
+  packages.sort();
+
   return packages;
 }
 
