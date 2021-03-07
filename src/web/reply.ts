@@ -30,6 +30,18 @@ export async function replyFile(req: ServerRequest, filePath: string, contentTyp
   file.close();
 }
 
+export async function replyGzipedFile(req: ServerRequest, filePath: string, contentType?: string) {
+  const baseFilePath = filePath.replace(/\.gz$/, '');
+  const file = await Deno.open(filePath, { read: true });
+  const fileInfo = await Deno.lstat(filePath);
+  await respond(req, { headers: new Headers([
+    ['content-type', contentType || lookup(baseFilePath) || 'application/octet-stream'],
+    ['content-encoding', 'gzip'],
+    ['content-length', fileInfo.size.toString()],
+  ]), body: file });
+  file.close();
+}
+
 // deno-lint-ignore no-explicit-any
 export async function replyTemplate(req: ServerRequest, templatePath: string, context: { [key: string]: any }) {
   const result = await dejs.renderFile(`./src/web/templates/${templatePath}`, context)

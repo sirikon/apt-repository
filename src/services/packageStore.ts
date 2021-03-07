@@ -1,5 +1,5 @@
 import { walk, exists, ensureDir, move } from "std/fs/mod.ts";
-import { join, normalize } from "std/path/mod.ts";
+import { join, normalize, dirname, basename } from "std/path/mod.ts";
 import { getDebInfo } from "@/services/deb.ts";
 import config from '@/config.ts';
 
@@ -19,18 +19,26 @@ export async function getPackages(): Promise<string[]> {
 
   packages.sort();
 
-  return packages;
+  return packages
+    .filter(n => !n.match(/\.gz$/));
 }
 
 export async function savePackage(filePath: string) {
   const debInfo = await getDebInfo(filePath);
   if (debInfo == null) return;
 
+  const targetPath = data(`packages/${getDebFileName(debInfo)}.deb`);
   await ensureDir(data('packages'));
-  await move(filePath, data(`packages/${getDebFileName(debInfo)}.deb`), {
-    overwrite: true
-  });
+  await move(filePath, targetPath, { overwrite: true });
+  await gzipFile(targetPath);
   await refreshDatabase();
+}
+
+async function gzipFile(filePath: string) {
+  await Deno.run({
+    cmd: ["gzip", "-k", "-f", basename(filePath)],
+    cwd: dirname(filePath), stdin: "null", stderr: "null", stdout: "null",
+  }).status();
 }
 
 async function refreshDatabase() {
