@@ -24,7 +24,7 @@ async function handleRequest(req: ServerRequest) {
   } catch (err) {
     console.error(err);
     try { await req.respond({ status: 500 }) }
-    catch (err) { /**/ }
+    catch (_err) { /**/ }
   }
 }
 
