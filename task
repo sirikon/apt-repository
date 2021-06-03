@@ -11,7 +11,7 @@ function build {(
   export DATA_FOLDER="${DATA_FOLDER:-"./data"}"
   mkdir -p ./out
   deno compile $(build-deno-flags) \
-    --lite --output ./out/apt-repository \
+    --output ./out/apt-repository \
     ./src/main.ts
 )}
 
